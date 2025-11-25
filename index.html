@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>StepTracker</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-time" id="statusTime">9:41</div>
+            <div class="status-icons">
+                <svg class="signal-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="1" y="14" width="4" height="8" rx="1"/>
+                    <rect x="7" y="10" width="4" height="12" rx="1"/>
+                    <rect x="13" y="6" width="4" height="16" rx="1"/>
+                    <rect x="19" y="2" width="4" height="20" rx="1"/>
+                </svg>
+                <svg class="wifi-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 18c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm-4.9-2.3l1.4 1.4C9.5 16.5 10.7 16 12 16s2.5.5 3.5 1.4l1.4-1.4C15.5 14.6 13.8 14 12 14s-3.5.6-4.9 1.7zm-2.8-2.8l1.4 1.4C7.3 13.1 9.6 12 12 12s4.7 1.1 6.3 2.3l1.4-1.4C17.5 11.1 14.9 10 12 10s-5.5 1.1-7.7 2.9z"/>
+                </svg>
+                <div class="battery-icon">
+                    <div class="battery-level"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-bar">
+            <button class="tab-button active" data-tab="tracker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Track</span>
+            </button>
+            <button class="tab-button" data-tab="history">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18"/>
+                    <path d="M18 17V9"/>
+                    <path d="M13 17V5"/>
+                    <path d="M8 17v-3"/>
+                </svg>
+                <span>History</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tracker View -->
+            <section class="view tracker-view active" id="trackerView">
+                <div class="tracker-header">
+                    <h1>Step Tracker</h1>
+                    <p class="subtitle" id="dateDisplay">Today</p>
+                </div>
+
+                <!-- Timer Display -->
+                <div class="timer-ring-container">
+                    <svg class="timer-ring" viewBox="0 0 200 200">
+                        <circle class="timer-ring-bg" cx="100" cy="100" r="90"/>
+                        <circle class="timer-ring-progress" cx="100" cy="100" r="90" id="timerProgress"/>
+                    </svg>
+                    <div class="timer-content">
+                        <div class="timer-display" id="timerDisplay">00:00:00</div>
+                        <div class="timer-label" id="timerLabel">Ready to walk</div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon steps-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value" id="stepCount">0</div>
+                        <div class="stat-label">Steps</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pace-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-value" id="stepsPerMinute">0.0</div>
+                        <div class="stat-label">Steps/min</div>
+                    </div>
+                </div>
+
+                <!-- Control Button -->
+                <div class="control-container">
+                    <button class="control-button start" id="controlButton">
+                        <span class="button-text">Start Walk</span>
+                    </button>
+                </div>
+
+                <!-- Session Summary Modal -->
+                <div class="modal-overlay" id="summaryModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Walk Complete!</h2>
+                            <div class="checkmark-circle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-value" id="summaryDuration">00:00:00</div>
+                                <div class="summary-label">Duration</div>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-stat">
+                                <div class="summary-value" id="summarySteps">0</div>
+                                <div class="summary-label">Total Steps</div>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-stat">
+                                <div class="summary-value" id="summaryPace">0.0</div>
+                                <div class="summary-label">Steps/min</div>
+                            </div>
+                        </div>
+                        <button class="modal-button" id="closeSummary">Done</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History View -->
+            <section class="view history-view" id="historyView">
+                <div class="history-header">
+                    <h1>Activity</h1>
+                    <div class="period-selector">
+                        <button class="period-button active" data-period="week">Week</button>
+                        <button class="period-button" data-period="month">Month</button>
+                        <button class="period-button" data-period="all">All</button>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <span class="chart-title">Steps per Walk</span>
+                        <span class="chart-total" id="chartTotal">0 total steps</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="stepsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="history-stats">
+                    <div class="history-stat-card">
+                        <div class="history-stat-value" id="avgSteps">0</div>
+                        <div class="history-stat-label">Avg Steps</div>
+                    </div>
+                    <div class="history-stat-card">
+                        <div class="history-stat-value" id="avgPace">0</div>
+                        <div class="history-stat-label">Avg Pace</div>
+                    </div>
+                    <div class="history-stat-card">
+                        <div class="history-stat-value" id="totalWalks">0</div>
+                        <div class="history-stat-label">Total Walks</div>
+                    </div>
+                </div>
+
+                <!-- Walk History List -->
+                <div class="history-list-container">
+                    <h3 class="history-list-title">Recent Walks</h3>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+                            </svg>
+                            <p>No walks recorded yet</p>
+                            <span>Start your first walk to see your history</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
