@@ -13,13 +13,19 @@ class StepTracker {
         this.timerInterval = null;
         this.walks = [];
 
-        // Step detection parameters
+        // Step detection parameters - tuned for real walking
         this.lastAcceleration = { x: 0, y: 0, z: 0 };
-        this.stepThreshold = 1.2;
+        this.stepThreshold = 2.5; // Higher threshold to filter out noise
         this.lastStepTime = 0;
-        this.minStepInterval = 250; // Minimum ms between steps
+        this.minStepInterval = 400; // 400ms = max 150 steps/min (realistic walking)
         this.accelerationBuffer = [];
-        this.bufferSize = 4;
+        this.bufferSize = 5;
+        this.warmupTime = 2000; // 2 second warmup before counting
+
+        // Peak detection state
+        this.lastMagnitude = 9.8;
+        this.peakDetected = false;
+        this.peakValue = 0;
 
         // DOM Elements
         this.timerDisplay = document.getElementById('timerDisplay');
@@ -155,13 +161,24 @@ class StepTracker {
         this.elapsedTime = 0;
         this.stepCount = 0;
         this.accelerationBuffer = [];
+        this.lastStepTime = 0;
+        this.peakDetected = false;
+        this.peakValue = 0;
+        this.lastMagnitude = 9.8;
 
         // Update UI
         this.controlButton.classList.remove('start');
         this.controlButton.classList.add('stop');
         this.controlButton.querySelector('.button-text').textContent = 'Stop Walk';
-        this.timerLabel.textContent = 'Walking...';
+        this.timerLabel.textContent = 'Calibrating...';
         this.timerLabel.classList.add('active');
+
+        // Show "Walking..." after warmup period
+        setTimeout(() => {
+            if (this.isTracking) {
+                this.timerLabel.textContent = 'Walking...';
+            }
+        }, this.warmupTime);
 
         // Start timer
         this.timerInterval = setInterval(() => this.updateTimer(), 100);
@@ -270,6 +287,13 @@ class StepTracker {
     handleMotion(event) {
         if (!this.isTracking) return;
 
+        const now = Date.now();
+
+        // Skip warmup period to avoid counting initial phone movements
+        if ((now - this.startTime) < this.warmupTime) {
+            return;
+        }
+
         const acceleration = event.accelerationIncludingGravity;
         if (!acceleration) return;
 
@@ -286,18 +310,39 @@ class StepTracker {
             this.accelerationBuffer.shift();
         }
 
-        // Calculate average
+        // Need enough samples for reliable detection
+        if (this.accelerationBuffer.length < this.bufferSize) {
+            this.lastMagnitude = magnitude;
+            return;
+        }
+
+        // Calculate smoothed average
         const avgMagnitude = this.accelerationBuffer.reduce((a, b) => a + b, 0) / this.accelerationBuffer.length;
 
-        // Detect step based on acceleration change
-        const now = Date.now();
-        const deltaAcc = Math.abs(avgMagnitude - 9.8); // Deviation from gravity
+        // Peak detection algorithm:
+        // A step creates a pattern: rising acceleration (foot strike) then falling (foot lift)
+        // We detect when acceleration rises above threshold, then falls back down
 
-        if (deltaAcc > this.stepThreshold &&
-            (now - this.lastStepTime) > this.minStepInterval) {
-            this.registerStep();
-            this.lastStepTime = now;
+        const deltaFromGravity = Math.abs(avgMagnitude - 9.8);
+
+        // Detect rising edge (potential step start)
+        if (!this.peakDetected && deltaFromGravity > this.stepThreshold) {
+            this.peakDetected = true;
+            this.peakValue = deltaFromGravity;
         }
+
+        // Detect falling edge (step complete) - acceleration returning toward normal
+        if (this.peakDetected && deltaFromGravity < this.stepThreshold * 0.5) {
+            // Verify minimum time between steps
+            if ((now - this.lastStepTime) > this.minStepInterval) {
+                this.registerStep();
+                this.lastStepTime = now;
+            }
+            this.peakDetected = false;
+            this.peakValue = 0;
+        }
+
+        this.lastMagnitude = avgMagnitude;
     }
 
     simulateSteps() {
