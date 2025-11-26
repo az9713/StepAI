@@ -2,7 +2,7 @@
     "name": "StepTracker",
     "short_name": "StepTracker",
     "description": "Track your walking steps with precision timing and historical charts",
-    "start_url": "/",
+    "start_url": "/StepAI/",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#000000",
